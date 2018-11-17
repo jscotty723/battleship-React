@@ -15,37 +15,40 @@ class Board extends Component {
         }
     }
 
-    createBoard = () => {
+// Easy Board Constructor//
+    createBoardEasy = () => {
         let emptyArr = []
-        for (let i = 5; i > 0; i--) {
-            emptyArr[i] = this.shipYard(i)
-        }
+        emptyArr[2] = this.shipYard(2)
+        emptyArr[4] = this.shipYard(3)
+        emptyArr[5] = this.shipYard(4)
+        emptyArr[6] = this.shipYard(5)
+
         let newArr = emptyArr.flat([1])
 
         for (let i = 0; i < newArr.length; i++) {
             for (let k = i+1; k < newArr.length; k++)
             if (newArr[i] === newArr[k]) {
                 console.log(newArr[i],newArr[k]);
-                return this.createBoard()
+                return this.createBoardEasy()
             }
         }
         this.setState({
             ships: newArr,
             gameBoard: Array(100).fill(null),
             boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
-            torpedoCount: 50,
+            torpedoCount: 60,
             hitCount: 0,
             statusMessage: 'Blast me if you can!'
         })
     }
 
+    // Moderate Board Constructor//
     createBoardModerate = () => {
         let emptyArr = []
-        emptyArr[1] = this.shipYard(1)
         emptyArr[2] = this.shipYard(2)
-        emptyArr[4] = this.shipYard(3)
-        emptyArr[5] = this.shipYard(4)
-        emptyArr[6] = this.shipYard(5)
+        emptyArr[3] = this.shipYard(3)
+        emptyArr[4] = this.shipYard(4)
+        emptyArr[5] = this.shipYard(5)
 
         let newArr = emptyArr.flat([1])
 
@@ -66,8 +69,10 @@ class Board extends Component {
         })
     }
 
+    // Difficult Board Constructor//
     createBoardDifficult = () => {
         let emptyArr = []
+        // calls ship creator function. number is length of ship//
         emptyArr[1] = this.shipYard(1)
         emptyArr[2] = this.shipYard(2)
         emptyArr[3] = this.shipYard(2)
@@ -75,8 +80,10 @@ class Board extends Component {
         emptyArr[5] = this.shipYard(4)
         emptyArr[6] = this.shipYard(5)
 
+        //takes nested arrays and makes one array without nested arrays//
         let newArr = emptyArr.flat([1])
 
+        //nested loop checks for ships intersecting on the same array. if duplicate found, calls new board creation.//
         for (let i = 0; i < newArr.length; i++) {
             for (let k = i+1; k < newArr.length; k++)
             if (newArr[i] === newArr[k]) {
@@ -94,18 +101,18 @@ class Board extends Component {
         })
     }
 
-
+    //creates ship//
     shipYard (num) {
+        //variables for x and y axis of ships//
         let x = Math.floor(Math.random()* 10)
         let y = Math.floor(Math.random()* (11-num))
         let tempShip = []
-
+        // choses by random math if ship will be vertical or horizontal//
         if ((Math.floor(Math.random()*2) % 2) == 0) {
             // vertical
             for (let i = 0; i < num; i++) {
                 tempShip.push(parseInt('' + (y+i) + x))
             }
-
         } else {
             // horizontal
             for (let i = 0; i < num; i++) {
@@ -115,14 +122,19 @@ class Board extends Component {
         return tempShip
     }
 
+    //function to handel player click on box//
     playerClick = (i) => {
+        //deconstructs this.state for easier referencing in below function//
         let {ships, gameBoard, torpedoCount, hitCount} = this.state
+        //makes sure click is on unclicked box and that hit count is not in winning state//
         if (gameBoard[i] == null && hitCount < ships.length) {
+            //game over for out of torpedos//
             if (torpedoCount <= 0) {
                 this.statusMessage("You're out of torpedos!")
                 this.displayMissed(ships)
-
+            //checks ships index to see if hit or miss//
             } else {
+                //hit//
                 if (ships.includes(i)) {
                     let hit = gameBoard
                     hit[i] = "x"
@@ -131,6 +143,7 @@ class Board extends Component {
                         torpedoCount: torpedoCount -1,
                         hitCount: hitCount +1
                     })
+                    //miss//
                 } else {
                     let miss = gameBoard
                     miss[i] = "o"
@@ -140,19 +153,22 @@ class Board extends Component {
                     })
                 }
             }
-            console.log(hitCount);
+            //calls check for winner function after hit or miss determined//
             this.checkWinner()
         }
     }
 
+    //function for seeing if all index's in ships array are "hit"//
     checkWinner =()=> {
         if(this.state.hitCount == this.state.ships.length-1) {
             this.statusMessage('You\'ve won!')
         }
     }
 
+    //calls all ships not hit to be displayed in different color so that user can see location of unhit ships//
     displayMissed = (ships) => {
         let message = "You did not use your torpedos wisely, young padawan"
+        //loops through ships to assign "m" which will tell how squares should be displayed//
         for (let i = 0; i < ships.length; i++) {
             if (this.state.gameBoard[ships[i]] === null) {
                 let missed = this.state.gameBoard
@@ -162,12 +178,9 @@ class Board extends Component {
                     statusMessage: message
                 })
             }
-        }return message
+        } return message
     }
 
-    statusMessage = (message) => {
-        this.setState({statusMessage: message})
-    }
 
     displayColor = (i) => {
         if (this.state.gameBoard[i]==='x') {
@@ -189,7 +202,7 @@ class Board extends Component {
                 <section className="headerContainer">
                     <h1 className="header">Battleship</h1>
                     <div className="selectLevel">
-                        <button className="startGame" onClick={this.createBoard}>
+                        <button className="startGame" onClick={this.createBoardEasy}>
                             Easy
                         </button>
                         <button className="startGame moderate" onClick={this.createBoardModerate}>
@@ -221,8 +234,15 @@ class Board extends Component {
                         <div className="message">
                             Message: {(this.state.torpedoCount === 0) ? this.displayMissed(this.state.ships) : this.state.statusMessage}
                         </div>
+                        < br/>
+                        <footer>
+                            Battleship Game by <a href="http://www.jpeters.me">Julianne Peters</a>. <a href="https://github.com/jscotty723/battleshipReact">Click here</a> to view project on <a href="http://github.com">GitHub</a>.
+                        </footer>
                     </section>
             </div>
+            <footer>
+
+            </footer>
         </div>
     );
   }
