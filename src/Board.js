@@ -9,7 +9,7 @@ class Board extends Component {
             gameBoard: Array(100).fill(null),
             boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
             ships: [],
-            torpedoCount: 40,
+            torpedoCount: 0,
             hitCount: 0,
             statusMessage: 'Blast me if you can!'
         }
@@ -33,11 +33,67 @@ class Board extends Component {
             ships: newArr,
             gameBoard: Array(100).fill(null),
             boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
+            torpedoCount: 50,
+            hitCount: 0,
+            statusMessage: 'Blast me if you can!'
+        })
+    }
+
+    createBoardModerate = () => {
+        let emptyArr = []
+        emptyArr[1] = this.shipYard(1)
+        emptyArr[2] = this.shipYard(2)
+        emptyArr[4] = this.shipYard(3)
+        emptyArr[5] = this.shipYard(4)
+        emptyArr[6] = this.shipYard(5)
+
+        let newArr = emptyArr.flat([1])
+
+        for (let i = 0; i < newArr.length; i++) {
+            for (let k = i+1; k < newArr.length; k++)
+            if (newArr[i] === newArr[k]) {
+                console.log(newArr[i],newArr[k]);
+                return this.createBoardModerate()
+            }
+        }
+        this.setState({
+            ships: newArr,
+            gameBoard: Array(100).fill(null),
+            boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
             torpedoCount: 40,
             hitCount: 0,
             statusMessage: 'Blast me if you can!'
         })
     }
+
+    createBoardDifficult = () => {
+        let emptyArr = []
+        emptyArr[1] = this.shipYard(1)
+        emptyArr[2] = this.shipYard(2)
+        emptyArr[3] = this.shipYard(2)
+        emptyArr[4] = this.shipYard(3)
+        emptyArr[5] = this.shipYard(4)
+        emptyArr[6] = this.shipYard(5)
+
+        let newArr = emptyArr.flat([1])
+
+        for (let i = 0; i < newArr.length; i++) {
+            for (let k = i+1; k < newArr.length; k++)
+            if (newArr[i] === newArr[k]) {
+                console.log(newArr[i],newArr[k]);
+                return this.createBoardDifficult()
+            }
+        }
+        this.setState({
+            ships: newArr,
+            gameBoard: Array(100).fill(null),
+            boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
+            torpedoCount: 40,
+            hitCount: 0,
+            statusMessage: 'Blast me if you can!'
+        })
+    }
+
 
     shipYard (num) {
         let x = Math.floor(Math.random()* 10)
@@ -132,9 +188,17 @@ class Board extends Component {
             <div className="pageContent">
                 <section className="headerContainer">
                     <h1 className="header">Battleship</h1>
-                    <button className="startGame" onClick={this.createBoard}>
-                        Start Game
-                    </button>
+                    <div className="selectLevel">
+                        <button className="startGame" onClick={this.createBoard}>
+                            Easy
+                        </button>
+                        <button className="startGame moderate" onClick={this.createBoardModerate}>
+                            Moderate
+                        </button>
+                        <button className="startGame difficult" onClick={this.createBoardDifficult}>
+                            Difficult
+                        </button>
+                    </div>
                 </section>
                     <section className="boardContainer">
                         <div className="board">
@@ -151,7 +215,7 @@ class Board extends Component {
                                 Torpedos Remaining: {this.state.torpedoCount}
                             </div>
                             <div className="hitsStatus">
-                                Hits: {this.state.hitCount} of 15
+                                Hits: {this.state.hitCount} of {this.state.ships.length}
                             </div>
                         </div>
                         <div className="message">
