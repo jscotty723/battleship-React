@@ -39,36 +39,24 @@ class Board extends Component {
 
     validateShips = (arr, difficulty) => {
         let newArr = arr.flat([1])
+        let torpCount = null
 
         for (let i = 0; i < newArr.length; i++) {
             for (let k = i+1; k < newArr.length; k++)
             if (newArr[i] === newArr[k]) {
-                if (difficulty === "easy") {
-                    return this.createBoard([2, 3, 4, 5])
-                } else if (difficulty === "moderate") {
-                    return this.createBoard([2, 2, 3, 4, 5])
-                } else if (difficulty === "difficult") {
-                    return this.createBoard([2, 3, 3, 4, 5])
-                }
-
-                // NOTE: this section is not DRY... only state that is custom set is torpedoCount... set torpedo count when easy/mod/difficult is first called??
+                return this.createBoard(difficulty)
             } else {
                 if (difficulty === "easy") {
-                    this.setState({
-                        ships: newArr,
-                        torpedoCount: 60,
-                    })
+                    torpCount = 60
                 } else if (difficulty === "moderate") {
-                    this.setState({
-                        ships: newArr,
-                        torpedoCount: 50,
-                    })
+                    torpCount = 50
                 } else if (difficulty === "difficult") {
-                    this.setState({
-                        ships: newArr,
-                        torpedoCount: 45,
-                    })
+                    torpCount = 45
                 }
+            this.setState({
+                torpedoCount: torpCount,
+                ships: newArr
+            })
             }
         }
     }

@@ -217,36 +217,33 @@ class Board extends Component {
                         </button>
                     </div>
                 </section>
-                    <section className="boardContainer">
-                        <div className="board">
-                            {this.state.gameBoard.map((el, i) => (
-                            <div onClick={() => this.playerClick(i)} style={{backgroundColor: this.displayColor(i)}} className="box i" id={i}>
-                            </div>
-                        ))}
+                <section className="boardContainer">
+                    <div className="board">
+                        {this.state.gameBoard.map((el, i) => (
+                        <div onClick={() => this.playerClick(i)} style={{backgroundColor: this.displayColor(i)}} className="box i" id={i}>
                         </div>
-                    </section>
-                    <section className="content">
-                        < br/>
-                        <div className="status">
-                            <div className="torpsStatus">
-                                Torpedos Remaining: {this.state.torpedoCount}
-                            </div>
-                            <div className="hitsStatus">
-                                Hits: {this.state.hitCount} of {this.state.ships.length}
-                            </div>
+                    ))}
+                    </div>
+                </section>
+                <section className="content">
+                    < br/>
+                    <div className="status">
+                        <div className="torpsStatus">
+                            Torpedos Remaining: {this.state.torpedoCount}
                         </div>
-                        <div className="message">
-                            Message: {(this.state.torpedoCount === 0) ? this.displayMissed(this.state.ships) : this.state.statusMessage}
+                        <div className="hitsStatus">
+                            Hits: {this.state.hitCount} of {this.state.ships.length}
                         </div>
-                        < br/>
-                        <footer>
-                            Battleship Game by <a href="http://www.jpeters.me">Julianne Peters</a>. <a href="https://github.com/jscotty723/battleshipReact">Click here</a> to view project on <a href="http://github.com">GitHub</a>.
-                        </footer>
-                    </section>
+                    </div>
+                    <div className="message">
+                        Message: {(this.state.torpedoCount === 0) ? this.displayMissed(this.state.ships) : this.state.statusMessage}
+                    </div>
+                    < br/>
+                    <footer>
+                        Battleship Game by <a href="http://www.jpeters.me">Julianne Peters</a>. <a href="https://github.com/jscotty723/battleshipReact">Click here</a> to view project on <a href="http://github.com">GitHub</a>.
+                    </footer>
+                </section>
             </div>
-            <footer>
-
-            </footer>
         </div>
     );
   }
