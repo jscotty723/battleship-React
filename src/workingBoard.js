@@ -1,76 +1,104 @@
 import React, { Component } from 'react';
+
 import './Board.css';
 
 class Board extends Component {
     constructor(props) {
         super(props);
-        this.state = {
+        this.state={
             gameBoard: Array(100).fill(null),
             boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
             ships: [],
             torpedoCount: 0,
             hitCount: 0,
-            statusMessage: 'Choose a difficulty level to start game!'
+            statusMessage: 'Blast me if you can!'
         }
     }
 
-    createBoard = (difficulty) => {
-        if (difficulty === "easy") {
-            this.preShipYard([2, 3, 4, 5], "easy")
-        } else if (difficulty === "moderate") {
-            this.preShipYard([2, 2, 3, 4, 5], "moderate")
-        } else if (difficulty === "difficult") {
-            this.preShipYard([2, 3, 3, 4, 5], "difficult")
+// Easy Board Constructor//
+    createBoardEasy = () => {
+        let emptyArr = []
+        emptyArr[2] = this.shipYard(2)
+        emptyArr[4] = this.shipYard(3)
+        emptyArr[5] = this.shipYard(4)
+        emptyArr[6] = this.shipYard(5)
+
+        let newArr = emptyArr.flat([1])
+
+        for (let i = 0; i < newArr.length; i++) {
+            for (let k = i+1; k < newArr.length; k++)
+            if (newArr[i] === newArr[k]) {
+                console.log(newArr[i],newArr[k]);
+                return this.createBoardEasy()
+            }
         }
         this.setState({
+            ships: newArr,
             gameBoard: Array(100).fill(null),
+            boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
+            torpedoCount: 60,
             hitCount: 0,
             statusMessage: 'Blast me if you can!'
         })
     }
 
-    preShipYard = (arr, difficulty) => {
+    // Moderate Board Constructor//
+    createBoardModerate = () => {
         let emptyArr = []
-        for (let i = 0; i < arr.length; i++) {
-            emptyArr[i] = this.shipYard(arr[i])
-        }
-        this.validateShips(emptyArr, difficulty)
-    }
+        emptyArr[2] = this.shipYard(2)
+        emptyArr[3] = this.shipYard(3)
+        emptyArr[4] = this.shipYard(4)
+        emptyArr[5] = this.shipYard(5)
 
-    validateShips = (arr, difficulty) => {
-        let newArr = arr.flat([1])
+        let newArr = emptyArr.flat([1])
 
         for (let i = 0; i < newArr.length; i++) {
             for (let k = i+1; k < newArr.length; k++)
             if (newArr[i] === newArr[k]) {
-                if (difficulty === "easy") {
-                    return this.createBoard([2, 3, 4, 5])
-                } else if (difficulty === "moderate") {
-                    return this.createBoard([2, 2, 3, 4, 5])
-                } else if (difficulty === "difficult") {
-                    return this.createBoard([2, 3, 3, 4, 5])
-                }
-
-                // NOTE: this section is not DRY... only state that is custom set is torpedoCount... set torpedo count when easy/mod/difficult is first called??
-            } else {
-                if (difficulty === "easy") {
-                    this.setState({
-                        ships: newArr,
-                        torpedoCount: 60,
-                    })
-                } else if (difficulty === "moderate") {
-                    this.setState({
-                        ships: newArr,
-                        torpedoCount: 50,
-                    })
-                } else if (difficulty === "difficult") {
-                    this.setState({
-                        ships: newArr,
-                        torpedoCount: 45,
-                    })
-                }
+                console.log(newArr[i],newArr[k]);
+                return this.createBoardModerate()
             }
         }
+        this.setState({
+            ships: newArr,
+            gameBoard: Array(100).fill(null),
+            boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
+            torpedoCount: 40,
+            hitCount: 0,
+            statusMessage: 'Blast me if you can!'
+        })
+    }
+
+    // Difficult Board Constructor//
+    createBoardDifficult = () => {
+        let emptyArr = []
+        // calls ship creator function. number is length of ship//
+        emptyArr[1] = this.shipYard(1)
+        emptyArr[2] = this.shipYard(2)
+        emptyArr[3] = this.shipYard(2)
+        emptyArr[4] = this.shipYard(3)
+        emptyArr[5] = this.shipYard(4)
+        emptyArr[6] = this.shipYard(5)
+
+        //takes nested arrays and makes one array without nested arrays//
+        let newArr = emptyArr.flat([1])
+
+        //nested loop checks for ships intersecting on the same array. if duplicate found, calls new board creation.//
+        for (let i = 0; i < newArr.length; i++) {
+            for (let k = i+1; k < newArr.length; k++)
+            if (newArr[i] === newArr[k]) {
+                console.log(newArr[i],newArr[k]);
+                return this.createBoardDifficult()
+            }
+        }
+        this.setState({
+            ships: newArr,
+            gameBoard: Array(100).fill(null),
+            boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
+            torpedoCount: 40,
+            hitCount: 0,
+            statusMessage: 'Blast me if you can!'
+        })
     }
 
     //creates ship//
@@ -80,7 +108,7 @@ class Board extends Component {
         let y = Math.floor(Math.random()* (11-num))
         let tempShip = []
         // choses by random math if ship will be vertical or horizontal//
-        if ((Math.floor(Math.random()*2) % 2) === 0) {
+        if ((Math.floor(Math.random()*2) % 2) == 0) {
             // vertical
             for (let i = 0; i < num; i++) {
                 tempShip.push(parseInt('' + (y+i) + x))
@@ -131,7 +159,7 @@ class Board extends Component {
     }
 
     //function for seeing if all index's in ships array are "hit"//
-    checkWinner = () => {
+    checkWinner =()=> {
         if(this.state.hitCount == this.state.ships.length-1) {
             this.statusMessage('You\'ve won!')
         }
@@ -178,44 +206,47 @@ class Board extends Component {
                 <section className="headerContainer">
                     <h1 className="header">Battleship</h1>
                     <div className="selectLevel">
-                        <button className="startGame" onClick={() => this.createBoard("easy")}>
+                        <button className="startGame" onClick={this.createBoardEasy}>
                             Easy
                         </button>
-                        <button className="startGame moderate" onClick={() => this.createBoard("moderate")}>
+                        <button className="startGame moderate" onClick={this.createBoardModerate}>
                             Moderate
                         </button>
-                        <button className="startGame difficult" onClick={() => this.createBoard("difficult")}>
+                        <button className="startGame difficult" onClick={this.createBoardDifficult}>
                             Difficult
                         </button>
                     </div>
                 </section>
-                <section className="boardContainer">
-                    <div className="board">
-                        {this.state.gameBoard.map((el, i) => (
-                        <div onClick={() => this.playerClick(i)} style={{backgroundColor: this.displayColor(i)}} className="box i" id={i}>
+                    <section className="boardContainer">
+                        <div className="board">
+                            {this.state.gameBoard.map((el, i) => (
+                            <div onClick={() => this.playerClick(i)} style={{backgroundColor: this.displayColor(i)}} className="box i" id={i}>
+                            </div>
+                        ))}
                         </div>
-                    ))}
-                    </div>
-                </section>
-                <section className="content">
-                    < br/>
-                    <div className="status">
-                        <div className="torpsStatus">
-                            Torpedos Remaining: {this.state.torpedoCount}
+                    </section>
+                    <section className="content">
+                        < br/>
+                        <div className="status">
+                            <div className="torpsStatus">
+                                Torpedos Remaining: {this.state.torpedoCount}
+                            </div>
+                            <div className="hitsStatus">
+                                Hits: {this.state.hitCount} of {this.state.ships.length}
+                            </div>
                         </div>
-                        <div className="hitsStatus">
-                            Hits: {this.state.hitCount} of {this.state.ships.length}
+                        <div className="message">
+                            Message: {(this.state.torpedoCount === 0) ? this.displayMissed(this.state.ships) : this.state.statusMessage}
                         </div>
-                    </div>
-                    <div className="message">
-                        Message: {(this.state.torpedoCount === 0) ? this.displayMissed(this.state.ships) : this.state.statusMessage}
-                    </div>
-                    < br/>
-                    <footer>
-                        Battleship Game by <a href="http://www.jpeters.me">Julianne Peters</a>. <a href="https://github.com/jscotty723/battleshipReact">Click here</a> to view project on <a href="http://github.com">GitHub</a>.
-                    </footer>
-                </section>
+                        < br/>
+                        <footer>
+                            Battleship Game by <a href="http://www.jpeters.me">Julianne Peters</a>. <a href="https://github.com/jscotty723/battleshipReact">Click here</a> to view project on <a href="http://github.com">GitHub</a>.
+                        </footer>
+                    </section>
             </div>
+            <footer>
+
+            </footer>
         </div>
     );
   }
