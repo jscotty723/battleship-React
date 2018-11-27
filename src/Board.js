@@ -6,7 +6,6 @@ class Board extends Component {
         super(props);
         this.state = {
             gameBoard: Array(100).fill(null),
-            boxColor: ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00'],
             ships: [],
             torpedoCount: 0,
             hitCount: 0,
@@ -14,54 +13,31 @@ class Board extends Component {
         }
     }
 
+    //calls to create ganeboard function. is passed difficulty argument from onClick.//
     createBoard = (difficulty) => {
-        if (difficulty === "easy") {
-            this.preShipYard([2, 3, 4, 5], "easy")
-        } else if (difficulty === "moderate") {
-            this.preShipYard([2, 2, 3, 4, 5], "moderate")
-        } else if (difficulty === "difficult") {
-            this.preShipYard([2, 3, 3, 4, 5], "difficult")
+        // calls preShipYard function with different array's depending on difficulty chosen. //
+        if (difficulty === 'easy') {
+            this.preShipYard([2, 3, 4, 5], 'easy')
+        } else if (difficulty === 'moderate') {
+            this.preShipYard([2, 2, 3, 4, 5], 'moderate')
+        } else if (difficulty === 'difficult') {
+            this.preShipYard([2, 3, 3, 4, 5], 'difficult')
         }
-        this.setState({
-            gameBoard: Array(100).fill(null),
-            hitCount: 0,
-            statusMessage: 'Blast me if you can!'
-        })
     }
 
+    // function that iterates through array passed by createBoard//
     preShipYard = (arr, difficulty) => {
+        // array to push ships created by shipYard into//
         let emptyArr = []
+        // loop to call shipYard on each array index. gets indexes back from shipYard and assigns them to that index in emptyArr//
         for (let i = 0; i < arr.length; i++) {
             emptyArr[i] = this.shipYard(arr[i])
         }
+        // calls validateShips function on array of ship indexes. arguments of emptyarr and difficulty passed to function//
         this.validateShips(emptyArr, difficulty)
     }
 
-    validateShips = (arr, difficulty) => {
-        let newArr = arr.flat([1])
-        let torpCount = null
-
-        for (let i = 0; i < newArr.length; i++) {
-            for (let k = i+1; k < newArr.length; k++)
-            if (newArr[i] === newArr[k]) {
-                return this.createBoard(difficulty)
-            } else {
-                if (difficulty === "easy") {
-                    torpCount = 60
-                } else if (difficulty === "moderate") {
-                    torpCount = 50
-                } else if (difficulty === "difficult") {
-                    torpCount = 45
-                }
-            this.setState({
-                torpedoCount: torpCount,
-                ships: newArr
-            })
-            }
-        }
-    }
-
-    //creates ship//
+    //creates ship. called by preShipYard.//
     shipYard (num) {
         //variables for x and y axis of ships//
         let x = Math.floor(Math.random()* 10)
@@ -82,6 +58,33 @@ class Board extends Component {
         return tempShip
     }
 
+    validateShips = (arr, difficulty) => {
+        let newArr = arr.flat([1])
+        let torpCount = null
+
+        for (let i = 0; i < newArr.length; i++) {
+            for (let k = i+1; k < newArr.length; k++)
+            if (newArr[i] === newArr[k]) {
+                return this.createBoard(difficulty)
+            } else {
+                if (difficulty === 'easy') {
+                    torpCount = 60
+                } else if (difficulty === 'moderate') {
+                    torpCount = 50
+                } else if (difficulty === 'difficult') {
+                    torpCount = 45
+                }
+            this.setState({
+                torpedoCount: torpCount,
+                ships: newArr,
+                gameBoard: Array(100).fill(null),
+                hitCount: 0,
+                statusMessage: 'Blast me if you can!'
+            })
+            }
+        }
+    }
+
     //function to handel player click on box//
     playerClick = (i) => {
         //deconstructs this.state for easier referencing in below function//
@@ -90,14 +93,14 @@ class Board extends Component {
         if (gameBoard[i] == null && hitCount < ships.length) {
             //game over for out of torpedos//
             if (torpedoCount <= 0) {
-                this.statusMessage("You're out of torpedos!")
+                this.statusMessage('You\'re out of torpedos!')
                 this.displayMissed(ships)
             //checks ships index to see if hit or miss//
             } else {
                 //hit//
                 if (ships.includes(i)) {
                     let hit = gameBoard
-                    hit[i] = "x"
+                    hit[i] = 'x'
                     this.setState({
                         gameBoard: hit,
                         torpedoCount: torpedoCount -1,
@@ -106,7 +109,7 @@ class Board extends Component {
                     //miss//
                 } else {
                     let miss = gameBoard
-                    miss[i] = "o"
+                    miss[i] = 'o'
                     this.setState({
                         gameBoard: miss,
                         torpedoCount: torpedoCount -1
@@ -118,7 +121,7 @@ class Board extends Component {
         }
     }
 
-    //function for seeing if all index's in ships array are "hit"//
+    //function for seeing if all index's in ships array are 'hit'//
     checkWinner = () => {
         if(this.state.hitCount == this.state.ships.length-1) {
             this.statusMessage('You\'ve won!')
@@ -127,12 +130,12 @@ class Board extends Component {
 
     //calls all ships not hit to be displayed in different color so that user can see location of unhit ships//
     displayMissed = (ships) => {
-        //loops through ships to assign "m" which will tell how squares should be displayed//
-        let message = "You did not use your torpedos wisely, young padawan"
+        //loops through ships to assign 'm' which will tell how squares should be displayed//
+        let message = 'You did not use your torpedos wisely, young padawan'
         for (let i = 0; i < ships.length; i++) {
             if (this.state.gameBoard[ships[i]] === null) {
                 let missed = this.state.gameBoard
-                missed[ships[i]] = "m"
+                missed[ships[i]] = 'm'
                 this.setState({
                     gameBoard: missed,
                     statusMessage: message
@@ -142,14 +145,15 @@ class Board extends Component {
     }
 
     displayColor = (i) => {
+        let colors = ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00']
         if (this.state.gameBoard[i]==='x') {
-            return this.state.boxColor[1]
+            return colors[1]
         } else if (this.state.gameBoard[i]==='o') {
-            return this.state.boxColor[2]
+            return colors[2]
         } else if (this.state.gameBoard[i]==='m') {
-            return this.state.boxColor[3]
+            return colors[3]
         } else {
-            return this.state.boxColor[0]
+            return colors[0]
         }
     }
 
@@ -161,46 +165,46 @@ class Board extends Component {
 
   render() {
     return (
-        <div className="wholePage">
-            <div className="pageContent">
-                <section className="headerContainer">
-                    <h1 className="header">Battleship</h1>
-                    <div className="selectLevel">
-                        <button className="startGame" onClick={() => this.createBoard("easy")}>
+        <div className='wholePage'>
+            <div className='pageContent'>
+                <section className='headerContainer'>
+                    <h1 className='header'>Battleship</h1>
+                    <div className='selectLevel'>
+                        <button className='startGame' onClick={() => this.createBoard('easy')}>
                             Easy
                         </button>
-                        <button className="startGame moderate" onClick={() => this.createBoard("moderate")}>
+                        <button className='startGame moderate' onClick={() => this.createBoard('moderate')}>
                             Moderate
                         </button>
-                        <button className="startGame difficult" onClick={() => this.createBoard("difficult")}>
+                        <button className='startGame difficult' onClick={() => this.createBoard('difficult')}>
                             Difficult
                         </button>
                     </div>
                 </section>
-                <section className="boardContainer">
-                    <div className="board">
+                <section className='boardContainer'>
+                    <div className='board'>
                         {this.state.gameBoard.map((el, i) => (
-                        <div onClick={() => this.playerClick(i)} style={{backgroundColor: this.displayColor(i)}} className="box i" id={i}>
+                        <div onClick={() => this.playerClick(i)} style={{backgroundColor: this.displayColor(i)}} className='box i' id={i}>
                         </div>
                     ))}
                     </div>
                 </section>
-                <section className="content">
+                <section className='content'>
                     < br/>
-                    <div className="status">
-                        <div className="torpsStatus">
+                    <div className='status'>
+                        <div className='torpsStatus'>
                             Torpedos Remaining: {this.state.torpedoCount}
                         </div>
-                        <div className="hitsStatus">
+                        <div className='hitsStatus'>
                             Hits: {this.state.hitCount} of {this.state.ships.length}
                         </div>
                     </div>
-                    <div className="message">
+                    <div className='message'>
                         Message: {(this.state.torpedoCount === 0) ? this.displayMissed(this.state.ships) : this.state.statusMessage}
                     </div>
                     < br/>
                     <footer>
-                        Battleship Game by <a href="http://www.jpeters.me">Julianne Peters</a>. <a href="https://github.com/jscotty723/battleshipReact">Click here</a> to view project on <a href="http://github.com">GitHub</a>.
+                        Battleship Game by <a href='http://www.jpeters.me'>Julianne Peters</a>. <a href='https://github.com/jscotty723/battleshipReact'>Click here</a> to view project on <a href='http://github.com'>GitHub</a>.
                     </footer>
                 </section>
             </div>
