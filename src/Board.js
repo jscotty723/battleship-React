@@ -13,9 +13,8 @@ class Board extends Component {
         }
     }
 
-    //calls to create ganeboard function. is passed difficulty argument from onClick.//
+    //function to create gameboard. OnClick fires function and passes difficulty argument and assigns different arrays accordingly. arrays represent lengths of ships to be made//
     createBoard = (difficulty) => {
-        // calls preShipYard function with different array's depending on difficulty chosen. //
         if (difficulty === 'easy') {
             this.preShipYard([2, 3, 4, 5], 'easy')
         } else if (difficulty === 'moderate') {
@@ -25,32 +24,26 @@ class Board extends Component {
         }
     }
 
-    // function that iterates through array passed by createBoard//
+    // function that iterates through array passed by createBoard(), calling shipyard() on each index and then pushes returned array into emptyArr//
     preShipYard = (arr, difficulty) => {
-        // array to push ships created by shipYard into//
         let emptyArr = []
-        // loop to call shipYard on each array index. gets indexes back from shipYard and assigns them to that index in emptyArr//
         for (let i = 0; i < arr.length; i++) {
             emptyArr[i] = this.shipYard(arr[i])
         }
-        // calls validateShips function on array of ship indexes. arguments of emptyarr and difficulty passed to function//
         this.validateShips(emptyArr, difficulty)
     }
 
-    //creates ship. called by preShipYard.//
+    //called by preShipYard() and creates ship with random location. RandomMath is used to determine if vertical or horizontal. ship is then pushed into array and returned//
     shipYard (num) {
         //variables for x and y axis of ships//
         let x = Math.floor(Math.random()* 10)
         let y = Math.floor(Math.random()* (11-num))
         let tempShip = []
-        // choses by random math if ship will be vertical or horizontal//
         if ((Math.floor(Math.random()*2) % 2) === 0) {
-            // vertical
             for (let i = 0; i < num; i++) {
                 tempShip.push(parseInt('' + (y+i) + x))
             }
         } else {
-            // horizontal
             for (let i = 0; i < num; i++) {
                 tempShip.push(parseInt('' + x + (y+i)))
             }
@@ -58,11 +51,11 @@ class Board extends Component {
         return tempShip
     }
 
+    // function is called at the end of preShipYard() to ensure that ships do not share the same square. takes arguments of difficulty and array of ship locations. if no conflict found, state is set for game to start. If not, new board is called with same difficulty level.//
     validateShips = (arr, difficulty) => {
         let newArr = arr.flat([1])
         let torpCount = null
-
-        for (let i = 0; i < newArr.length; i++) {
+        for (let i = 0; i < newArr.length; i++)
             for (let k = i+1; k < newArr.length; k++)
             if (newArr[i] === newArr[k]) {
                 return this.createBoard(difficulty)
@@ -85,38 +78,29 @@ class Board extends Component {
         }
     }
 
-    //function to handel player click on box//
+    //function to handel player click on box. checks to see that box hasn't been clicked, then evaluates if index has a value in ships array. then calls function to see if winning state has been achieved//
     playerClick = (i) => {
-        //deconstructs this.state for easier referencing in below function//
         let {ships, gameBoard, torpedoCount, hitCount} = this.state
-        //makes sure click is on unclicked box and that hit count is not in winning state//
         if (gameBoard[i] == null && hitCount < ships.length) {
-            //game over for out of torpedos//
+            let move = gameBoard
+            let newHitCount = hitCount
+            let newTorpedoCount = torpedoCount -1
             if (torpedoCount <= 0) {
                 this.statusMessage('You\'re out of torpedos!')
                 this.displayMissed(ships)
-            //checks ships index to see if hit or miss//
             } else {
-                //hit//
                 if (ships.includes(i)) {
-                    let hit = gameBoard
-                    hit[i] = 'x'
-                    this.setState({
-                        gameBoard: hit,
-                        torpedoCount: torpedoCount -1,
-                        hitCount: hitCount +1
-                    })
-                    //miss//
+                    move[i] = 'x'
+                    newHitCount = newHitCount -1
                 } else {
-                    let miss = gameBoard
-                    miss[i] = 'o'
-                    this.setState({
-                        gameBoard: miss,
-                        torpedoCount: torpedoCount -1
-                    })
+                    move[i] = 'o'
                 }
+                this.setState({
+                    gameBoard: move,
+                    torpedoCount: newTorpedoCount,
+                    hitCount: newHitCount
+                })
             }
-            //calls check for winner function after hit or miss determined//
             this.checkWinner()
         }
     }
@@ -130,12 +114,17 @@ class Board extends Component {
 
     //calls all ships not hit to be displayed in different color so that user can see location of unhit ships//
     displayMissed = (ships) => {
-        //loops through ships to assign 'm' which will tell how squares should be displayed//
+        //new message to be assigned to state//
         let message = 'You did not use your torpedos wisely, young padawan'
+        //iterates through ships array//
         for (let i = 0; i < ships.length; i++) {
+            //if ships index is unhit (null)//
             if (this.state.gameBoard[ships[i]] === null) {
+                //creating variable for easier referencing
                 let missed = this.state.gameBoard
+                //assigning square on gameboard with a 'm' instead of null//
                 missed[ships[i]] = 'm'
+                //setting state for gameboard to include missed values and also message//
                 this.setState({
                     gameBoard: missed,
                     statusMessage: message
@@ -144,19 +133,26 @@ class Board extends Component {
         } return message
     }
 
+    //function called on board rendering to assign color to squares based on square status//
     displayColor = (i) => {
+        //array of colors//
         let colors = ['#D0D5D8', '#db0000', 'rgba(255, 255, 255, 0)', '#ffff00']
+        //for hit choose index 1 value//
         if (this.state.gameBoard[i]==='x') {
             return colors[1]
+        //for miss choose index 2 value//
         } else if (this.state.gameBoard[i]==='o') {
             return colors[2]
+        //for ships not hit at end of game choose index 3 value//
         } else if (this.state.gameBoard[i]==='m') {
             return colors[3]
+        //for untouched squares choose index 0 value//
         } else {
             return colors[0]
         }
     }
 
+    //function to allow status message to be reassigned. takes argument of string//
     statusMessage = (string) => {
         this.setState({
             statusMessage: string
